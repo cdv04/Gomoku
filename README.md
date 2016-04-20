@@ -1,5 +1,5 @@
 # Gomoku
-Follow the progress of [Trello](https://trello.com/b/e5nu9jE7)!
+Follow the progress on [Trello](https://trello.com/b/e5nu9jE7)!
 
 ## The project's objectives
 The project is an implementation of the game Gomoku Ninuki with artificial intelligence (AI) capable of winning.
