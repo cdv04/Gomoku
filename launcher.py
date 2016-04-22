@@ -2,74 +2,26 @@
 # -*- coding: utf-8 -*-
 # @author: beauge_z
 
-import sys, pygame
+import sys
+from options import *
+import gameplay
+
+import pygame
 
 class Launcher:
+    """
+    Class allowing pygame to load.
+    """
     pygame.init()
     pygame.display.set_caption('Gomoku')
-    screen = None
-    font = pygame.font.Font('./font/electroharmonix.ttf', 40)
-    class Option:
-        hover = False
-        def __init__(self, text, pos, mfont, screen, func):
-            self.text = text
-            self.pos = pos
-            self.mFont = mfont
-            self.screen = screen
-            self.setSurf()
-            self.draw()
-            self.func = func
-        def draw(self):
-            self.getRender()
-            self.screen.blit(self.render, self.surf)
-        def getRender(self):
-            self.render = self.mFont.render(self.text, True, self.getColor())
-        def getColor(self):
-            if self.hover:
-                return (232, 95, 137)
-            else:
-                return (0, 0, 0)
-        def setSurf(self):
-            self.getRender()
-            self.surf = self.render.get_rect()
-            self.surf.bottomright = self.pos
-
-    def loadPvP(self):
-        run = True
-        while run:
-            bg = pygame.image.load('./img/Goban.jpg')
-            self.screen.blit(bg, (0,0))
-            for e in pygame.event.get():
-                if e.type == pygame.QUIT:
-                    run = False
-                elif e.type == pygame.KEYDOWN:
-                    if e.key == pygame.K_ESCAPE:
-                        run = False
-            pygame.display.update()
-        return True
-
-    def loadPvAI(self):
-        run = True
-        while run:
-            bg = pygame.image.load('./img/Goban.jpg')
-            self.screen.blit(bg, (0,0))
-            for e in pygame.event.get():
-                if e.type == pygame.QUIT:
-                    run = False
-                elif e.type == pygame.KEYDOWN:
-                    if e.key == pygame.K_ESCAPE:
-                        run = False
-            pygame.display.update()
-        return True
-
-    def mQuit(self):
-        return False
-
+    pygame.display.set_icon(pygame.image.load('./img/ico.png'))
     def __init__(self):
-        self.screen = pygame.display.set_mode((750, 750))
-        self.options = [self.Option("Player VS Player", (730, 430), self.font, self.screen, self.loadPvP),
-                        self.Option("Player VS IA", (730, 480), self.font, self.screen, self.loadPvAI),
-                        self.Option("Quit", (730, 730), self.font, self.screen, self.mQuit)]
+        self.font = pygame.font.Font('./font/electroharmonix.ttf', 40)
+        self.screen = pygame.display.set_mode((770, 770))
+        self.options = [Option("Player VS Player", (750, 430), self.font, self.screen, gameplay.loadPvP),
+                        Option("Player VS IA", (750, 480), self.font, self.screen, gameplay.loadPvAI),
+                        Option("Quit", (750, 750), self.font, self.screen, gameplay.rFalse)]
+
     def launch(self):
         run = True
         while run:
@@ -86,16 +38,13 @@ class Launcher:
                     if option.surf.collidepoint(pygame.mouse.get_pos()):
                         option.hover = True
                         if e.type == pygame.MOUSEBUTTONDOWN and e.button == 1:
-                            run = option.func()
+                            run = option.func(self.screen, self.font)
                     else:
                         option.hover = False
                     option.draw()
             for option in self.options:
                 if option.surf.collidepoint(pygame.mouse.get_pos()):
                     option.hover = True
-                    for e in pygame.event.get():
-                        if e.type == pygame.MOUSEBUTTONDOWN and e.button == 1:
-                            run = option.func()
                 else:
                     option.hover = False
                 option.draw()
