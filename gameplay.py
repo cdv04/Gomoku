@@ -56,6 +56,16 @@ def paused(screen, font):
         pygame.time.Clock().tick(60)
     return (resume)
 
+def capture(board, x, y, playerColor, other):
+    score = 0
+    for i in [(0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1, 1)]:
+        if board[y + 1 * i[0]][x + 1 * i[1]] == other and board[y + 2 * i[0]][x + 2 * i[1]] == other and board[y + 3 * i[0]][x + 3 * i[1]] == playerColor:
+            board[y + 1 * i[0]][x + 1 * i[1]] = None
+            board[y + 2 * i[0]][x + 2 * i[1]] = None
+            score += 2
+    return (score, board)
+
+
 def loadPvAI(screen, font):
     run = True
     board = list()
@@ -80,6 +90,9 @@ def loadPvP(screen, font):
     run = True
     board = list()
     playerColor = 'b'
+    other = 'w'
+    scoreW = 0
+    scoreB = 0
     for j in range(0, 19):
         a = list()
         for i in range(0, 19):
@@ -92,8 +105,8 @@ def loadPvP(screen, font):
         screen.blit(bg, (0,0))
         for j in range(0,19):
             for i in range(0,19):
-                x = j*(35+5)+5
-                y = i*(35+5)+5
+                y = j*(35+5)+5
+                x = i*(35+5)+5
                 if (board[j][i] == 'b'):
                     screen.blit(b, (round(x), round(y)))
                 elif (board[j][i] == 'w'):
@@ -106,9 +119,23 @@ def loadPvP(screen, font):
                     run = False
             elif e.type == pygame.MOUSEBUTTONDOWN and e.button == 1:
                 x, y = pygame.mouse.get_pos()
-                if (board[int((x-5)/40)][int((y-5)/40)] == None):
-                    board[int((x-5)/40)][int((y-5)/40)] = playerColor
+                if (board[int((y-5)/40)][int((x-5)/40)] == None):
+                    board[int((y-5)/40)][int((x-5)/40)] = playerColor
+                    score, board = capture(board, int((x-5)/40), int((y-5)/40), playerColor, other)
+                    if playerColor == 'w':
+                        scoreW += score
+                    else:
+                        scoreB += score
                     playerColor = 'w' if playerColor == 'b' else 'b'
+                    other = 'w' if other == 'b' else 'b'
+                print('score Black:', scoreB)
+                print('score White:', scoreW)
+                if (scoreW == 10):
+                    print('White won.')
+                    run = False
+                elif(scoreB == 10):
+                    print('Black won.')
+                    run = False
         x, y = pygame.mouse.get_pos()
         x = int((x-5)/40)*(35+5)+5
         y = int((y-5)/40)*(35+5)+5
