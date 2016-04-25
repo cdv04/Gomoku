@@ -4,6 +4,7 @@
 
 import sys
 from options import *
+import referee
 
 import pygame
 
@@ -55,16 +56,6 @@ def paused(screen, font):
         pygame.display.update()
         pygame.time.Clock().tick(60)
     return (resume)
-
-def capture(board, x, y, playerColor, other):
-    score = 0
-    for i in [(0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1, 1)]:
-        if board[y + 1 * i[0]][x + 1 * i[1]] == other and board[y + 2 * i[0]][x + 2 * i[1]] == other and board[y + 3 * i[0]][x + 3 * i[1]] == playerColor:
-            board[y + 1 * i[0]][x + 1 * i[1]] = None
-            board[y + 2 * i[0]][x + 2 * i[1]] = None
-            score += 2
-    return (score, board)
-
 
 def loadPvAI(screen, font):
     run = True
@@ -121,7 +112,8 @@ def loadPvP(screen, font):
                 x, y = pygame.mouse.get_pos()
                 if (board[int((y-5)/40)][int((x-5)/40)] == None):
                     board[int((y-5)/40)][int((x-5)/40)] = playerColor
-                    score, board = capture(board, int((x-5)/40), int((y-5)/40), playerColor, other)
+                    win = referee.check5(board, int((x-5)/40), int((y-5)/40), playerColor)
+                    score, board = referee.capture(board, int((x-5)/40), int((y-5)/40), playerColor, other)
                     if playerColor == 'w':
                         scoreW += score
                     else:
@@ -130,10 +122,10 @@ def loadPvP(screen, font):
                     other = 'w' if other == 'b' else 'b'
                 print('score Black:', scoreB)
                 print('score White:', scoreW)
-                if (scoreW == 10):
+                if (scoreW == 10 or win == 'w'):
                     print('White won.')
                     run = False
-                elif(scoreB == 10):
+                elif(scoreB == 10 or win == 'b'):
                     print('Black won.')
                     run = False
         x, y = pygame.mouse.get_pos()
