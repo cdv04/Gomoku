@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # @author: beauge_z
 
-import sys
+import sys, os
 from options import *
 import referee
 
@@ -57,6 +57,18 @@ def paused(screen, font):
         pygame.time.Clock().tick(60)
     return (resume)
 
+def displayScore(scoreB, scoreW, win):
+    os.system('cls' if os.name=='nt' else 'clear')
+    print('score Black:', scoreB)
+    print('score White:', scoreW)
+    if (scoreW == 10 or win == 'w'):
+        print('White won.')
+        return (False)
+    elif(scoreB == 10 or win == 'b'):
+        print('Black won.')
+        return(False)
+    return(True)
+
 def loadPvAI(screen, font):
     run = True
     board = list()
@@ -96,8 +108,8 @@ def loadPvP(screen, font):
         screen.blit(bg, (0,0))
         for j in range(0,19):
             for i in range(0,19):
-                y = j*(35+5)+5
-                x = i*(35+5)+5
+                y = j*(40)+5
+                x = i*(40)+5
                 if (board[j][i] == 'b'):
                     screen.blit(b, (round(x), round(y)))
                 elif (board[j][i] == 'w'):
@@ -120,17 +132,10 @@ def loadPvP(screen, font):
                         scoreB += score
                     playerColor = 'w' if playerColor == 'b' else 'b'
                     other = 'w' if other == 'b' else 'b'
-                print('score Black:', scoreB)
-                print('score White:', scoreW)
-                if (scoreW == 10 or win == 'w'):
-                    print('White won.')
-                    run = False
-                elif(scoreB == 10 or win == 'b'):
-                    print('Black won.')
-                    run = False
+                    run = displayScore(scoreB, scoreW, win)
         x, y = pygame.mouse.get_pos()
-        x = int((x-5)/40)*(35+5)+5
-        y = int((y-5)/40)*(35+5)+5
+        x = int((x-5)/40)*(40)+5
+        y = int((y-5)/40)*(40)+5
         screen.blit(w if playerColor == 'w' else b, (round(x), round(y)))
         pygame.display.update()
     return True
