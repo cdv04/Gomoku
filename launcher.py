@@ -26,7 +26,7 @@ class Launcher:
         run = True
         while run:
             pygame.event.pump()
-            bg = pygame.image.load('./img/MenuBG.JPG')
+            bg = pygame.image.load('./img/MenuBG.jpg')
             self.screen.blit(bg, (0,0))
             for e in pygame.event.get():
                 if e.type == pygame.QUIT:

@@ -16,6 +16,7 @@ def capture(board, x, y, playerColor, other):
 
 def checkPatern3(l, player):
     #TODO Smooth
+    return(True)
 
 def checkFree3():
     nb3 = 0
@@ -33,7 +34,7 @@ def checkFree3():
         nb3 += 1
     if (checkPatern3([board[y + 4][x - 4], board[y + 3][x - 3], board[y + 2][x - 2], board[y + 1][x - 1], board[y - 1][x + 1]], player) or
         checkPatern3([board[y + 1][x - 1], board[y - 1][x + 1], board[y - 2][x + 2], board[y - 3][x + 3], board[y - 4][x + 4]], player) or
-        checkPatern3([board[y + 2][x - 2], board[y + 1][x - 1], board[y - 1][x + 1], board[y - 2][x + 2], board[y - 3][x + 3]], player))
+        checkPatern3([board[y + 2][x - 2], board[y + 1][x - 1], board[y - 1][x + 1], board[y - 2][x + 2], board[y - 3][x + 3]], player)):
         nb3 += 1
     return(nb3)
 
