@@ -29,8 +29,8 @@ def checkFree3():
         checkPatern3([board[y - 2][x], board[y - 1][x], board[y + 1][x], board[y + 2][x], board[y + 3][x]], player)):
         nb3 += 1
     if (checkPatern3([board[y - 1][x - 1], board[y + 1][x + 1], board[y + 2][x + 2], board[y + 3][x + 3], board[y + 4][x + 4]], player) or
-	    checkPatern3([board[y - 4][x - 4], board[y - 3][x - 3], board[y - 2][x - 2], board[y - 1][x - 1], board[y + 1][x + 1]], player) or
-		checkPatern3([board[y - 2][x - 2], board[y - 1][x - 1], board[y + 1][x + 1], board[y + 2][x + 2], board[y + 3][x + 3]], player)):
+        checkPatern3([board[y - 4][x - 4], board[y - 3][x - 3], board[y - 2][x - 2], board[y - 1][x - 1], board[y + 1][x + 1]], player) or
+        checkPatern3([board[y - 2][x - 2], board[y - 1][x - 1], board[y + 1][x + 1], board[y + 2][x + 2], board[y + 3][x + 3]], player)):
         nb3 += 1
     if (checkPatern3([board[y + 4][x - 4], board[y + 3][x - 3], board[y + 2][x - 2], board[y + 1][x - 1], board[y - 1][x + 1]], player) or
         checkPatern3([board[y + 1][x - 1], board[y - 1][x + 1], board[y - 2][x + 2], board[y - 3][x + 3], board[y - 4][x + 4]], player) or
@@ -58,10 +58,56 @@ def checkDouble3(board, x, y, player):
                     else:
                         print('checkDouble3 -> Yeah')
 
+def isBreakable(dir, x, y, p, b):
+    cx = x
+    cy = y
+    e = 'w' if p == 'b' else 'b'
+    for i in range(0,5):
+        if (dir != 'L'):
+            if ((b[cy][cx + 1] == p and (b[cy][cx + 2] == None or b[cy][cx + 2] != None) and b[cy][cx - 1] == e) or
+                (b[cy][cx + 1] == p and b[cy][cx + 2] == e and (b[cy][cx - 1] == None or b[cy][cx - 1] != None)) or
+                (b[cy][cx + 1] == e and b[cy][cx - 1] == p and (b[cy][cx - 2] == None or b[cy][cx - 2] != None)) or
+                ((b[cy][cx + 1] == None or b[cy][cx + 1] != None) and b[cy][cx - 1] == p and b[cy][cx - 2] == e)):
+                return (true)
+        if (dir != 'C'):
+            if ((b[cy + 1][cx] == p and (b[cy + 2][cx] == None or b[cy + 2][cx] != None) and b[cy - 1][cx] == e) or
+                (b[cy + 1][cx] == p and b[cy + 2][cx] == e and (b[cy - 1][cx] == None or b[cy - 1][cx] != None)) or
+                (b[cy + 1][cx] == e and b[cy - 1][cx] == p and (b[cy - 2][cx] == None or b[cy - 2][cx] != None)) or
+                ((b[cy + 1][cx] == None or b[cy + 1][cx] != None) and b[cy - 1][cx] == p and b[cy - 2][cx] == e)):
+                return (true)
+        if (dir != 'D1'):
+            if ((b[cy + 1][cx + 1] == p and (b[cy + 2][cx + 2] == None or b[cy + 2][cx + 2] != None) and b[cy - 1][cx - 1] == e) or
+                (b[cy + 1][cx + 1] == p and b[cy + 2][cx + 2] == e and (b[cy - 1][cx - 1] == None or b[cy - 1][cx - 1] != None)) or
+                (b[cy + 1][cx + 1] == e and b[cy - 1][cx - 1] == p and (b[cy - 2][cx - 2] == None or b[cy - 2][cx - 2] != None)) or
+                ((b[cy + 1][cx + 1] == None or b[cy + 1][cx + 1] != None) and b[cy - 1][cx - 1] == p and b[cy - 2][cx - 2] == e)):
+                return (true)
+        if (dir != 'D2'):
+            if ((b[cy + 1][cx - 1] == p and (b[cy + 2][cx - 2] == None or b[cy + 2][cx - 2] != None) and b[cy - 1][cx + 1] == e) or
+                (b[cy + 1][cx - 1] == p and b[cy + 2][cx - 2] == e and (b[cy - 1][cx + 1] == None or b[cy - 1][cx + 1] != None)) or
+                (b[cy + 1][cx - 1] == e and b[cy - 1][cx + 1] == p and (b[cy - 2][cx + 2] == None or b[cy + 2][cx + 2] != None)) or
+                ((b[cy + 1][cx - 1] == None or b[cy + 1][cx - 1] != None) and b[cy - 1][cx + 1] == p and b[cy - 2][cx + 2] == e)):
+                return (true)
+        if dir == 'L':
+            cx += 1
+        elif dir == 'C':
+            cy += 1
+        elif dir == 'D1':
+            cx += 1
+            cy += 1
+        elif dir == 'D2':
+            cx -= 1
+            cy -= 1
+        else:
+            print("[ERROR]: Unkown \'dir\'.", file=sys.stderr)
+    return (false)
+
 def check5(board, x, y, color):
         case = [[-1,-1], [0,-1], [1,-1],
                 [-1, 0], [0, 0], [1, 0],
                 [-1, 1], [0, 1], [1, 1]]
+        caseL = ['D1', 'C', 'D2',
+                'L', None, 'L',
+                'D2', 'C', 'D1']
         nb1 = 1
         nb2 = 1
         m = (len(case))
@@ -69,11 +115,14 @@ def check5(board, x, y, color):
             while board[y + case[i][1] * nb1][x + case[i][0] * nb1] == color:
                 nb1 += 1
                 if nb1 == 5:
-                    return(color)
+                    if (isBreakable(caseL[i])):
+                        return(color)
             while board[y + case[m - i - 1][1] * nb2][x + case[m - i - 1][0] * nb2] == color:
                 nb2 += 1
                 if nb2 == 5 or nb2+nb1-2 == 5:
-                    return(color)
+                    if (isBreakable(caseL[m - i - 1])):
+                        return(color)
             if nb1+nb2-2 == 5:
-                return(color)
+                if (isBreakable(caseL[i])):
+                    return(color)
         return(0)
