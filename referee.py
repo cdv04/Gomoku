@@ -72,14 +72,12 @@ def isBreakable(d, x, y, p, b):
                 if not ((ccx > 18 or ccx < 0) or (ccy > 18 or ccy < 0)):
                     if b[ccy][ccx] == e and (nb == 0 or nb == 2):
                         nb += 3
-                    elif b[ccy][ccx] == e and nb != 1:
+                    elif ((b[ccy][ccx] == e and nb != 1) or
+                          (b[ccy][ccx] == p and nb == 2) or
+                          (b[ccy][ccx] == None)):
                         nb = 0
                     elif b[ccy][ccx] == p and (nb <= 1 or nb >= 3):
                         nb += 1
-                    elif b[ccy][ccx] == p and nb == 2:
-                        nb = 0
-                    elif b[ccy][ccx] == None:
-                        nb = 0
                 if nb == 5:
                     return (True)
     return (False)
