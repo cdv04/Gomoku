@@ -3,10 +3,10 @@
 # @author: beauge_z
 
 import sys
-from options import *
-import gameplay
-
 import pygame
+
+from options import Option
+import gameplay
 
 class Launcher:
     """
@@ -18,40 +18,40 @@ class Launcher:
     def __init__(self):
         self.font = pygame.font.Font('./font/electroharmonix.ttf', 40)
         self.screen = pygame.display.set_mode((770, 770))
-        self.options = [Option("Player VS Player", (750, 430), self.font, self.screen, gameplay.loadPvP),
-                        Option("Player VS IA", (750, 480), self.font, self.screen, gameplay.loadPvAI),
-                        Option("Quit", (750, 750), self.font, self.screen, gameplay.rFalse)]
+        self.options = [Option("Player VS Player", (750, 430), self.font, self.screen, gameplay.load_p_vs_p),
+                        Option("Player VS IA", (750, 480), self.font, self.screen, gameplay.load_p_vs_ai),
+                        Option("Quit", (750, 750), self.font, self.screen, gameplay.r_false)]
 
     def launch(self):
         run = True
         while run:
             pygame.event.pump()
-            bg = pygame.image.load('./img/MenuBG.jpg')
-            self.screen.blit(bg, (0,0))
-            for e in pygame.event.get():
-                if e.type == pygame.QUIT:
+            background = pygame.image.load('./img/MenuBG.jpg')
+            self.screen.blit(background, (0, 0))
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
                     run = False
-                elif e.type == pygame.KEYDOWN:
-                    if e.key == pygame.K_ESCAPE:
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
                         run = False
                 for option in self.options:
                     if option.surf.collidepoint(pygame.mouse.get_pos()):
                         option.hover = True
-                        if e.type == pygame.MOUSEBUTTONDOWN and e.button == 1:
-                            run = option.func(self.screen, self.font)
+                        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                            run = option.func(self.screen)
                     else:
                         option.hover = False
                     option.draw()
             for option in self.options:
-                if option.surf.collidepoint(pygame.mouse.get_pos()):
-                    option.hover = True
-                else:
-                    option.hover = False
+                option.hover = bool(option.surf.collidepoint(pygame.mouse.get_pos()))
                 option.draw()
             pygame.display.update()
+
+    def exit(self):
         pygame.quit()
-        return (0)
+        return 0
 
 if __name__ == '__main__':
-    game = Launcher()
-    sys.exit(game.launch())
+    __game__ = Launcher()
+    __game__.launch()
+    sys.exit(__game__.exit())

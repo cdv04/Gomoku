@@ -27,3 +27,9 @@ to run the script.
 + `Setup` will perform the configuration of virtualenv and put you in the good environment.
 + `Install dependencies` Will install all dependencies for `python3` `pip3` and `pygames`
 + `Exit` obviously exit the script.
+
+## Run the game
+Use:
+```bash
+./gomoku
+```

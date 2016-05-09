@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+# @author: beauge_z
+
 class Option:
     """
     Class for the menu button, with mouse hovering.

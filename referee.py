@@ -1,102 +1,172 @@
-import sys
+# -*- coding: utf-8 -*-
+# @author: beauge_z
 
-import pygame
+"""
+This module is the Referee of the Gomoku game.
+"""
+import os
 
-def capture(board, x, y, playerColor, other):
-    score = 0
-    case = [[-1,-1], [0,-1], [1,-1],
-            [-1, 0], [0, 0], [1, 0],
-            [-1, 1], [0, 1], [1, 1]]
-    for i in case:
-        if (y + 3 * i[0] < 19 and x + 3 * i[1] < 19):
-            if (board[y + 1 * i[0]][x + 1 * i[1]] == other and board[y + 2 * i[0]][x + 2 * i[1]] == other and
-                board[y + 3 * i[0]][x + 3 * i[1]] == playerColor):
-                board[y + 1 * i[0]][x + 1 * i[1]] = None
-                board[y + 2 * i[0]][x + 2 * i[1]] = None
-                score += 2
-    return (score, board)
 
-def checkPatern3(l, player):
-    #TODO Smooth
-    return(True)
+class Referee:
+    """
+    The class Referee contain all functions necessary
+    to arbitrate the game.
+    """
+    def __init__(self):
+        self.score_white = 0
+        self.score_black = 0
+        self.case = [[0, 1], [1, 1], [1, 0], [1, -1]]
 
-def getDouble3():
-    nb3 = 0
-    for i in [[0, 1], [1, 0], [1, 1], [-1, 1]]:
-        if (checkPatern3([board[y - 1 * i[0]][x - 1 * i[1]], board[y + 1 * i[0]][x + 1 * i[1]], board[y + 2 * i[0]][x + 2 * i[1]], board[y + 3 * i[0]][x + 3 * i[1]], board[y + 4 * i[0]][x + 4 * i[1]]], player) or
-            checkPatern3([board[y - 4 * i[0]][x - 4 * i[1]], board[y - 3 * i[0]][x - 3 * i[1]], board[y - 2 * i[0]][x - 2 * i[1]], board[y - 1 * i[0]][x - 1 * i[1]], board[y + 1 * i[0]][x + 1 * i[1]]], player) or
-            checkPatern3([board[y - 2 * i[0]][x - 2 * i[1]], board[y - 1 * i[0]][x - 1 * i[1]], board[y + 1 * i[0]][x + 1 * i[1]], board[y + 2 * i[0]][x + 2 * i[1]], board[y + 3 * i[0]][x + 3 * i[1]]], player)):
-            nb3 += 1
-    return(nb3)
+    def display_win(self, win):
+        """
+        Inputs:
+        -   win     =>  char [w/b/None]
 
-def checkDouble3(board, x, y, player):
-    cBoard = list()
-    for j in board:
-        a = list()
-        for i in j:
-            a.append(i)
-        cBoard.append(a)
-    for i in range(0, 8):
-        for j in range(0, 8):
-            cx = x - 4 + j
-            cy = y - 4 + i
-            if (cx >= 0 and cy >= 0 and cx < 19  and cy < 19):
-                if (cBoard[cy][cx] ==  None):
-                    cBoard[cy][cx] = player
-                    if(True):
-                        """↑ function_getDouble3 >= 2 ↑"""
-                        print('checkDouble3 -> Nope')
+        Outputs:
+        -   bool
+        """
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print('score Black:', self.score_black)
+        print('score White:', self.score_white)
+        if self.score_white == 10 or win == 'w':
+            print('White won.')
+            return False
+        elif self.score_black == 10 or win == 'b':
+            print('Black won.')
+            return False
+        return True
+
+    def display_score(self, score, player, enemy, win):
+        """
+        Inputs:
+        -   score   =>  int [0/2]
+        -   player  =>  char [w/b]
+        -   enemy   =>  char [w/b]
+        -   win     =>  char [w/b/None]
+
+        Outputs:
+        -   char [w/b]
+        -   char [w/b]
+        -   bool
+        """
+        if player == 'w':
+            self.score_white += score
+        else:
+            self.score_black += score
+        player = 'w' if player == 'b' else 'b'
+        enemy = 'w' if enemy == 'b' else 'b'
+        run = self.display_win(win)
+        return player, enemy, run
+
+    def set_stone(self, board, player_color, coord):
+        """
+        Inputs:
+        -   board
+        -   player_color  =>  char [w/b]
+        -   coord         =>  y,x
+
+        Outputs:
+        - board modified or None
+        """
+        if board[int((coord[0] - 5) / 40)][int((coord[1] - 5) / 40)] is None:
+            board[int((coord[0] - 5) / 40)][int((coord[1] - 5) / 40)] = player_color
+            return board
+        return None
+
+    def capture(self, board, coord, player_color, other):
+        score = 0
+        coord[1] = coord[1]
+        coord[0] = coord[0]
+        case = [[-1, -1], [0, -1], [1, -1],
+                [-1, 0], [0, 0], [1, 0],
+                [-1, 1], [0, 1], [1, 1]]
+        for i in case:
+            if coord[0] + 3 * i[0] < 19 and coord[1] + 3 * i[1] < 19:
+                if (board[coord[0] + 1 * i[0]][coord[1] + 1 * i[1]] == other and
+                        board[coord[0] + 2 * i[0]][coord[1] + 2 * i[1]] == other and
+                        board[coord[0] + 3 * i[0]][coord[1] + 3 * i[1]] == player_color):
+                    board[coord[0] + 1 * i[0]][coord[1] + 1 * i[1]] = None
+                    board[coord[0] + 2 * i[0]][coord[1] + 2 * i[1]] = None
+                    score += 2
+        return score, board
+
+        # def check_patern3(self, list, player):
+        # Smooth
+        #return True
+
+        #    def get_double3(self, board, coord, player):
+        #        cpt3 = 0
+        #        for i in [[0, 1], [1, 0], [1, 1], [-1, 1]]:
+        #            cpt3 += 1
+        #        return cpt3
+
+    def check_double3(self, board, coord, player):
+        copied_board = list()
+        for j in board:
+            to_append = list()
+            for i in j:
+                to_append.append(i)
+            copied_board.append(to_append)
+        for i in range(0, 8):
+            for j in range(0, 8):
+                calculated_x = coord[1] - 4 + j
+                calculated_y = coord[0] - 4 + i
+                if (calculated_x >= 0 and calculated_y >= 0 and
+                        calculated_x < 19 and calculated_y < 19):
+                    if copied_board[calculated_y][calculated_x] is None:
+                        copied_board[calculated_y][calculated_x] = player
+                        if True:
+                            #"""↑ function_getDouble3 >= 2 ↑"""
+                            print('checkDouble3 -> Nope')
+                        else:
+                            print('checkDouble3 -> Yeah')
+
+    def is_breakable(self, direction, coord, player, board):
+        enemy = 'w' if player == 'b' else 'b'
+        if (coord[0] == 0 or coord[0] == 18) and (direction[0] == 0 and direction[1] == -1):
+            return False
+        elif (coord[1] == 0 or coord[1] == 18) and (direction[0] == -1 and direction[1] == 0):
+            return False
+        for i in range(0, 5):
+            calculated_x = coord[1] + direction[1] * i
+            calculated_y = coord[0] + direction[0] * i
+            for case in self.case:
+                dir_x = calculated_x - 2 * case[1]
+                dir_y = calculated_y - 2 * case[0]
+                cpt = 0
+                for j in range(0, 5):
+                    calc_case_x = dir_x + j * case[1]
+                    calc_case_y = dir_y + j * case[0]
+                    if not ((calc_case_x > 18 or calc_case_x < 0) or
+                            (calc_case_y > 18 or calc_case_y < 0)):
+                        if board[calc_case_y][calc_case_x] == enemy and (cpt == 0 or cpt == 2):
+                            cpt += 3
+                        elif ((board[calc_case_y][calc_case_x] == enemy and cpt != 1) or
+                              (board[calc_case_y][calc_case_x] == player and cpt == 2) or
+                              (board[calc_case_y][calc_case_x] is None)):
+                            cpt = 0
+                        elif board[calc_case_y][calc_case_x] == player and (cpt <= 1 or cpt >= 3):
+                            cpt += 1
+                    if cpt == 5:
+                        return True
+        return False
+
+    def check5(self, board, coord, color):
+        for case in self.case:
+            dir_x = coord[1] - 4 * case[1]
+            dir_y = coord[0] - 4 * case[0]
+            cpt = 0
+            for i in range(0, 9):
+                calculated_x = dir_x + i * case[1]
+                calculated_y = dir_y + i * case[0]
+                if not ((calculated_x > 18 or calculated_x < 0)
+                        or (calculated_y > 18 or calculated_y < 0)):
+                    if board[calculated_y][calculated_x] == color:
+                        cpt += 1
+                        if cpt == 5:
+                            if not is_breakable([-case[0], -case[1]], [calculated_y, calculated_x],
+                                                color, board):
+                                return color
                     else:
-                        print('checkDouble3 -> Yeah')
-
-def isBreakable(d, x, y, p, b):
-    cx = x
-    cy = y
-    case = [[0,1], [1,1], [1,0], [1, -1]]
-    e = 'w' if p == 'b' else 'b'
-    print (d)
-    if (((cy == 0 or cy == 18) and (d[0] == 0 and d[1] == -1)) or
-        ((cx == 0 or cx == 18) and (d[0] == -1 and d[1] == 0))):
-        print('x 0 ou 18')
-        return (False)
-    for i in range(0,5):
-        cx = x + d[1] * i
-        cy = y + d[0] * i
-        for c in case:
-            dx = cx - 2 * c[1]
-            dy = cy - 2 * c[0]
-            nb = 0
-            for j in range(0,5):
-                ccx = dx + j * c[1]
-                ccy = dy + j * c[0]
-                if not ((ccx > 18 or ccx < 0) or (ccy > 18 or ccy < 0)):
-                    if b[ccy][ccx] == e and (nb == 0 or nb == 2):
-                        nb += 3
-                    elif ((b[ccy][ccx] == e and nb != 1) or
-                          (b[ccy][ccx] == p and nb == 2) or
-                          (b[ccy][ccx] == None)):
-                        nb = 0
-                    elif b[ccy][ccx] == p and (nb <= 1 or nb >= 3):
-                        nb += 1
-                if nb == 5:
-                    return (True)
-    return (False)
-
-def check5(board, x, y, color):
-    case = [[0,1], [1,1], [1,0], [1, -1]]
-    for c in case:
-        dx = x - 4 * c[1]
-        dy = y - 4 * c[0]
-        nb = 0
-        for i in range(0,9):
-            cx = dx + i * c[1]
-            cy = dy + i * c[0]
-            if not ((cx > 18 or cx < 0) or (cy > 18 or cy < 0)):
-                if board[cy][cx] == color:
-                    nb += 1
-                    if nb == 5:
-                        if not (isBreakable([-c[0], -c[1]], cx, cy, color, board)):
-                            return (color)
-                else:
-                    nb = 0
-    return (0)
+                        cpt = 0
+        return 0
