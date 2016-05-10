@@ -2,11 +2,17 @@
 # -*- coding: utf-8 -*-
 # @author: beauge_z
 
+"""
+The project is an implementation of the game Gomoku Ninuki
+with artificial intelligence (AI) capable of winning.
+"""
 import sys
+
 import pygame
 
-from options import Option
 import gameplay
+from options import Option
+
 
 class Launcher:
     """
@@ -15,14 +21,17 @@ class Launcher:
     pygame.init()
     pygame.display.set_caption('Gomoku')
     pygame.display.set_icon(pygame.image.load('./img/ico.png'))
+
     def __init__(self):
-        self.font = pygame.font.Font('./font/electroharmonix.ttf', 40)
         self.screen = pygame.display.set_mode((770, 770))
-        self.options = [Option("Player VS Player", (750, 430), self.font, self.screen, gameplay.load_p_vs_p),
-                        Option("Player VS IA", (750, 480), self.font, self.screen, gameplay.load_p_vs_ai),
-                        Option("Quit", (750, 750), self.font, self.screen, gameplay.r_false)]
+        self.options = [Option("Player VS Player", (750, 430), self.screen, gameplay.load_p_vs_p),
+                        Option("Player VS IA", (750, 480), self.screen, gameplay.load_p_vs_ai),
+                        Option("Quit", (750, 750), self.screen, gameplay.r_false)]
 
     def launch(self):
+        """
+        Create the menu, launch the corresponding gamemode.
+        """
         run = True
         while run:
             pygame.event.pump()
@@ -48,6 +57,9 @@ class Launcher:
             pygame.display.update()
 
     def exit(self):
+        """
+        Exit.
+        """
         pygame.quit()
         return 0
 

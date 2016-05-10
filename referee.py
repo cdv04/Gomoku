@@ -12,6 +12,7 @@ class Referee:
     The class Referee contain all functions necessary
     to arbitrate the game.
     """
+
     def __init__(self):
         self.score_white = 0
         self.score_black = 0
@@ -74,6 +75,10 @@ class Referee:
         return None
 
     def capture(self, board, coord, player_color, other):
+        """
+        Check if the move make a capture.
+        Return the new board and the score.
+        """
         score = 0
         coord[1] = coord[1]
         coord[0] = coord[0]
@@ -92,7 +97,7 @@ class Referee:
 
         # def check_patern3(self, list, player):
         # Smooth
-        #return True
+        # return True
 
         #    def get_double3(self, board, coord, player):
         #        cpt3 = 0
@@ -101,6 +106,10 @@ class Referee:
         #        return cpt3
 
     def check_double3(self, board, coord, player):
+        """
+        Check the double three rule.
+        Return True if this rules is respected.
+        """
         copied_board = list()
         for j in board:
             to_append = list()
@@ -122,17 +131,20 @@ class Referee:
                             print('checkDouble3 -> Yeah')
 
     def is_breakable(self, direction, coord, player, board):
+        """
+        Check if the 5 stones are breakable.
+        Return True if so.
+        """
         enemy = 'w' if player == 'b' else 'b'
         if (coord[0] == 0 or coord[0] == 18) and (direction[0] == 0 and direction[1] == -1):
             return False
         elif (coord[1] == 0 or coord[1] == 18) and (direction[0] == -1 and direction[1] == 0):
             return False
         for i in range(0, 5):
-            calculated_x = coord[1] + direction[1] * i
-            calculated_y = coord[0] + direction[0] * i
+            new_yx = [coord[0] + direction[0] * i, coord[1] + direction[1] * i]
             for case in self.case:
-                dir_x = calculated_x - 2 * case[1]
-                dir_y = calculated_y - 2 * case[0]
+                dir_x = new_yx[1] - 2 * case[1]
+                dir_y = new_yx[0] - 2 * case[0]
                 cpt = 0
                 for j in range(0, 5):
                     calc_case_x = dir_x + j * case[1]
@@ -152,6 +164,10 @@ class Referee:
         return False
 
     def check5(self, board, coord, color):
+        """
+        Check if 5 stones are aligned.
+        Return color of winner, else 0.
+        """
         for case in self.case:
             dir_x = coord[1] - 4 * case[1]
             dir_y = coord[0] - 4 * case[0]
@@ -164,8 +180,9 @@ class Referee:
                     if board[calculated_y][calculated_x] == color:
                         cpt += 1
                         if cpt == 5:
-                            if not is_breakable([-case[0], -case[1]], [calculated_y, calculated_x],
-                                                color, board):
+                            tup_coord = [calculated_y, calculated_x]
+                            opp_dir = [-case[0], -case[1]]
+                            if self.is_breakable(opp_dir, tup_coord, color, board) is False:
                                 return color
                     else:
                         cpt = 0
