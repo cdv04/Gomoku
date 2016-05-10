@@ -95,40 +95,27 @@ class Referee:
                     score += 2
         return score, board
 
-        # def check_patern3(self, list, player):
-        # Smooth
-        # return True
-
-        #    def get_double3(self, board, coord, player):
-        #        cpt3 = 0
-        #        for i in [[0, 1], [1, 0], [1, 1], [-1, 1]]:
-        #            cpt3 += 1
-        #        return cpt3
-
-    def check_double3(self, board, coord, player):
+    def check_double3(self, board, coord, color):
         """
         Check the double three rule.
         Return True if this rules is respected.
         """
-        copied_board = list()
-        for j in board:
-            to_append = list()
-            for i in j:
-                to_append.append(i)
-            copied_board.append(to_append)
-        for i in range(0, 8):
-            for j in range(0, 8):
-                calculated_x = coord[1] - 4 + j
-                calculated_y = coord[0] - 4 + i
-                if (calculated_x >= 0 and calculated_y >= 0 and
-                        calculated_x < 19 and calculated_y < 19):
-                    if copied_board[calculated_y][calculated_x] is None:
-                        copied_board[calculated_y][calculated_x] = player
-                        if True:
-                            #"""↑ function_getDouble3 >= 2 ↑"""
-                            print('checkDouble3 -> Nope')
-                        else:
-                            print('checkDouble3 -> Yeah')
+        for case in self.case:
+            dir_x = coord[1] - 4 * case[1]
+            dir_y = coord[0] - 4 * case[0]
+            cpt = 0
+            for i in range(0, 9):
+                calculated_x = dir_x + i * case[1]
+                calculated_y = dir_y + i * case[0]
+                if not ((calculated_x > 18 or calculated_x < 0)
+                        or (calculated_y > 18 or calculated_y < 0)):
+                    if board[calculated_y][calculated_x] == color:
+                        cpt += 1
+                        if cpt == 5:
+                            return True
+                    else:
+                        cpt = 0
+        return 0
 
     def is_breakable(self, direction, coord, player, board):
         """
