@@ -95,25 +95,35 @@ class Referee:
                     score += 2
         return score, board
 
-    def check_double3(self, board, coord, color):
+    def check_double3(self, board, coord, color, first=False):
         """
         Check the double three rule.
         Return True if this rules is respected.
         """
+        copied_board = list()
+        for j in board:
+            to_append = list()
+            for i in j:
+                to_append.append(i)
+            copied_board.append(to_append)
+        if first:
+            copied_board[coord[0]][coord[1]] = color
         for case in self.case:
             dir_x = coord[1] - 4 * case[1]
             dir_y = coord[0] - 4 * case[0]
             cpt = 0
+            last = None
             for i in range(0, 9):
                 calculated_x = dir_x + i * case[1]
                 calculated_y = dir_y + i * case[0]
                 if not ((calculated_x > 18 or calculated_x < 0)
                         or (calculated_y > 18 or calculated_y < 0)):
-                    if board[calculated_y][calculated_x] == color:
+                    if copied_board[calculated_y][calculated_x] == color:
+                        last = [calculated_y, calculated_x]
                         cpt += 1
-                        if cpt == 5:
+                        if cpt == 3:
                             return True
-                    else:
+                    elif calculated_x - last[1] == 5 or calculated_y - last[0] == 5:
                         cpt = 0
         return 0
 
