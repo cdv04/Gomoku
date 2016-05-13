@@ -100,31 +100,36 @@ class Referee:
         Check the double three rule.
         Return True if this rules is respected.
         """
-        copied_board = list()
+        cop_board = list()
         for j in board:
             to_append = list()
             for i in j:
                 to_append.append(i)
-            copied_board.append(to_append)
+            cop_board.append(to_append)
         if first:
-            copied_board[coord[0]][coord[1]] = color
+            cop_board[coord[0]][coord[1]] = color
+        dir_yx = [0, 0]
+        calc_yx = [0, 0]
         for case in self.case:
-            dir_x = coord[1] - 4 * case[1]
-            dir_y = coord[0] - 4 * case[0]
+            dir_yx[1] = coord[1] - 4 * case[1]
+            dir_yx[0] = coord[0] - 4 * case[0]
             cpt = 0
-            last = None
+            cpt_none = 0
             for i in range(0, 9):
-                calculated_x = dir_x + i * case[1]
-                calculated_y = dir_y + i * case[0]
-                if not ((calculated_x > 18 or calculated_x < 0)
-                        or (calculated_y > 18 or calculated_y < 0)):
-                    if copied_board[calculated_y][calculated_x] == color:
-                        last = [calculated_y, calculated_x]
+                calc_yx[1] = dir_yx[1] + i * case[1]
+                calc_yx[0] = dir_yx[0] + i * case[0]
+                if not ((calc_yx[1] > 18 or calc_yx[1] < 0)
+                        or (calc_yx[0] > 18 or calc_yx[0] < 0)):
+                    if cop_board[calc_yx[0]][calc_yx[1]] == color:
                         cpt += 1
                         if cpt == 3:
-                            return True
-                    elif calculated_x - last[1] == 5 or calculated_y - last[0] == 5:
-                        cpt = 0
+                            return (self.check_double3(cop_board, calc_yx, color) if not first
+                                    else True)
+                    elif cop_board[calc_yx[0]][calc_yx[1]] is None:
+                        cpt_none += 1
+                    elif (cpt_none + cpt == 5 or
+                          cop_board[calc_yx[0]][calc_yx[1]] == ('b' if color == 'w' else 'w')):
+                        return True
         return 0
 
     def is_breakable(self, direction, coord, player, board):
