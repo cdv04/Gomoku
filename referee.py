@@ -18,7 +18,7 @@ class Referee:
         self.score_black = 0
         self.case = [[0, 1], [1, 1], [1, 0], [1, -1]]
 
-    def display_win(self, win):
+    def display_win(self, win, msg=None):
         """
         Inputs:
         -   win     =>  char [w/b/None]
@@ -27,6 +27,8 @@ class Referee:
         -   bool
         """
         os.system('cls' if os.name == 'nt' else 'clear')
+        if msg:
+            print(msg)
         print('score Black:', self.score_black)
         print('score White:', self.score_white)
         if self.score_white == 10 or win == 'w':
@@ -37,7 +39,7 @@ class Referee:
             return False
         return True
 
-    def display_score(self, score, player, enemy, win):
+    def display_score(self, score, player, win, msg=None):
         """
         Inputs:
         -   score   =>  int [0/2]
@@ -54,10 +56,8 @@ class Referee:
             self.score_white += score
         else:
             self.score_black += score
-        player = 'w' if player == 'b' else 'b'
-        enemy = 'w' if enemy == 'b' else 'b'
-        run = self.display_win(win)
-        return player, enemy, run
+        run = self.display_win(win, msg)
+        return run
 
     def set_stone(self, board, player_color, coord):
         """
@@ -69,36 +69,71 @@ class Referee:
         Outputs:
         - board modified or None
         """
-        if board[int((coord[0] - 5) / 40)][int((coord[1] - 5) / 40)] is None:
+        coord_in_board = [int((coord[0] - 5) / 40), int((coord[1] - 5) / 40)]
+        chck, msg = self.is_double3(board, coord_in_board, player_color)
+        if board[int((coord[0] - 5) / 40)][int((coord[1] - 5) / 40)] is None and not chck:
             board[int((coord[0] - 5) / 40)][int((coord[1] - 5) / 40)] = player_color
-            return board
-        return None
+            return board, None
+        return None, msg
 
-    def capture(self, board, coord, player_color, other):
+    def capture(self, board, coord, player_color):
         """
         Check if the move make a capture.
         Return the new board and the score.
         """
         score = 0
-        coord[1] = coord[1]
-        coord[0] = coord[0]
+        enemy = 'b' if player_color == 'w' else 'w'
         case = [[-1, -1], [0, -1], [1, -1],
                 [-1, 0], [0, 0], [1, 0],
                 [-1, 1], [0, 1], [1, 1]]
+        msg = None
         for i in case:
             if coord[0] + 3 * i[0] < 19 and coord[1] + 3 * i[1] < 19:
-                if (board[coord[0] + 1 * i[0]][coord[1] + 1 * i[1]] == other and
-                        board[coord[0] + 2 * i[0]][coord[1] + 2 * i[1]] == other and
+                if (board[coord[0] + 1 * i[0]][coord[1] + 1 * i[1]] == enemy and
+                        board[coord[0] + 2 * i[0]][coord[1] + 2 * i[1]] == enemy and
                         board[coord[0] + 3 * i[0]][coord[1] + 3 * i[1]] == player_color):
                     board[coord[0] + 1 * i[0]][coord[1] + 1 * i[1]] = None
                     board[coord[0] + 2 * i[0]][coord[1] + 2 * i[1]] = None
                     score += 2
-        return score, board
+                    msg = ("White" if player_color == 'w' else "Black") + " has made a capture!"
+        return score, board, msg
 
-    def check_double3(self, board, coord, color, first=False):
+    def check_double3(self, board, coord, direction, color):
+        """
+        Check in the precedent alignment of 3, if there any other 3 stones aligned.
+        """
+        simplified_case = list()
+        for case in self.case:
+            if case is not direction:
+                simplified_case.append(case)
+        for coord_yx in coord:
+            for case in simplified_case:
+                dir_x = coord_yx[1] - 2 * case[1]
+                dir_y = coord_yx[0] - 2 * case[0]
+                cpt = 0
+                cpt_none = 0
+                for j in range(0, 9):
+                    # print("Try to find another 3stones aligned on", coord_yx)
+                    calc_case_x = dir_x + j * case[1]
+                    calc_case_y = dir_y + j * case[0]
+                    if ((calc_case_x > 18 or calc_case_x < 0) or
+                            (calc_case_y > 18 or calc_case_y < 0)):
+                        continue
+                    elif board[calc_case_y][calc_case_x] == color:
+                        cpt += 1
+                        if cpt == 3:
+                            return (True, "The placement of this stone is not possible." +
+                                    " (Double three).")
+                    elif board[calc_case_y][calc_case_x] is None:
+                        cpt_none += 1
+                    elif cpt_none + cpt == 5:
+                        return False, None
+        return False, None
+
+    def is_double3(self, board, coord, color):
         """
         Check the double three rule.
-        Return True if this rules is respected.
+        Return True if this rule is NOT respected.
         """
         cop_board = list()
         for j in board:
@@ -106,8 +141,7 @@ class Referee:
             for i in j:
                 to_append.append(i)
             cop_board.append(to_append)
-        if first:
-            cop_board[coord[0]][coord[1]] = color
+        cop_board[coord[0]][coord[1]] = color
         dir_yx = [0, 0]
         calc_yx = [0, 0]
         for case in self.case:
@@ -115,6 +149,7 @@ class Referee:
             dir_yx[0] = coord[0] - 4 * case[0]
             cpt = 0
             cpt_none = 0
+            coord_stone = list()
             for i in range(0, 9):
                 calc_yx[1] = dir_yx[1] + i * case[1]
                 calc_yx[0] = dir_yx[0] + i * case[0]
@@ -122,15 +157,14 @@ class Referee:
                         or (calc_yx[0] > 18 or calc_yx[0] < 0)):
                     if cop_board[calc_yx[0]][calc_yx[1]] == color:
                         cpt += 1
+                        coord_stone.append(calc_yx)
                         if cpt == 3:
-                            return (self.check_double3(cop_board, calc_yx, color) if not first
-                                    else True)
+                            return self.check_double3(cop_board, coord_stone, case, color)
                     elif cop_board[calc_yx[0]][calc_yx[1]] is None:
                         cpt_none += 1
-                    elif (cpt_none + cpt == 5 or
-                          cop_board[calc_yx[0]][calc_yx[1]] == ('b' if color == 'w' else 'w')):
-                        return True
-        return 0
+                    elif cpt_none + cpt == 5:
+                        return False, None
+        return False, None
 
     def is_breakable(self, direction, coord, player, board):
         """
