@@ -64,7 +64,7 @@ class Referee:
         Inputs:
         -   board
         -   player_color  =>  char [w/b]
-        -   coord         =>  y,x
+        -   coord         =>  x,y
 
         Outputs:
         - board modified or None
@@ -108,26 +108,29 @@ class Referee:
                 simplified_case.append(case)
         for coord_yx in coord:
             for case in simplified_case:
-                dir_x = coord_yx[1] - 2 * case[1]
-                dir_y = coord_yx[0] - 2 * case[0]
+                dir_x = coord_yx[1] - 4 * case[1]
+                dir_y = coord_yx[0] - 4 * case[0]
                 cpt = 0
                 cpt_none = 0
                 for j in range(0, 9):
-                    # print("Try to find another 3stones aligned on", coord_yx)
                     calc_case_x = dir_x + j * case[1]
                     calc_case_y = dir_y + j * case[0]
                     if ((calc_case_x > 18 or calc_case_x < 0) or
                             (calc_case_y > 18 or calc_case_y < 0)):
                         continue
                     elif board[calc_case_y][calc_case_x] == color:
+                        if cpt == 0:
+                            cpt_none = 0
                         cpt += 1
                         if cpt == 3:
                             return (True, "The placement of this stone is not possible." +
                                     " (Double three).")
                     elif board[calc_case_y][calc_case_x] is None:
                         cpt_none += 1
-                    elif cpt_none + cpt == 5:
-                        return False, None
+                        if cpt_none + cpt >= 5:
+                            break
+                    elif cpt_none + cpt >= 5 or board[calc_case_y][calc_case_x] != color:
+                        break
         return False, None
 
     def is_double3(self, board, coord, color):
@@ -157,12 +160,12 @@ class Referee:
                         or (calc_yx[0] > 18 or calc_yx[0] < 0)):
                     if cop_board[calc_yx[0]][calc_yx[1]] == color:
                         cpt += 1
-                        coord_stone.append(calc_yx)
+                        coord_stone.append(list(calc_yx))
                         if cpt == 3:
                             return self.check_double3(cop_board, coord_stone, case, color)
                     elif cop_board[calc_yx[0]][calc_yx[1]] is None:
                         cpt_none += 1
-                    elif cpt_none + cpt == 5:
+                    elif cpt_none + cpt == 5 or board[calc_yx[0]][calc_yx[1]] != color:
                         return False, None
         return False, None
 

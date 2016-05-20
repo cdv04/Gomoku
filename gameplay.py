@@ -6,7 +6,23 @@ This module contain the basic gameplay functions.
 """
 import pygame
 
+import ai
 from referee import Referee
+
+
+def init_board():
+    """
+    Create the board.
+    """
+    board = list()
+    for cpt_y in range(0, 19):
+        to_append = list()
+        cpt_y = cpt_y
+        for cpt_x in range(0, 19):
+            to_append.append(None)
+            cpt_x = cpt_x
+        board.append(to_append)
+    return board
 
 
 def r_false(coord_x=0, coord_y=0):
@@ -62,21 +78,33 @@ def load_p_vs_ai(screen):
     Load the gamemode against an AI.
     """
     run = True
-    board = list()
-    for cpt_y in range(0, 19):
-        to_append = list()
-        for cpt_x in range(0, 19):
-            _ = cpt_x, cpt_y
-            to_append.append(None)
-        board.append(to_append)
+    board = init_board()
+    player_color = 'b'  # set_color_player
+    ref = Referee()
+    ai_turn = True if player_color == 'w' else False
     while run:
         display_board(screen, board)
+        if ai_turn:
+            ai.ai_play(board, ('b' if player_color == 'w' else 'w'))
+            ai_turn = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     run = False
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                coord_x, coord_y = pygame.mouse.get_pos()
+                rboard, msg = ref.set_stone(board, player_color, [coord_y, coord_x])
+                if rboard is not None:
+                    board = rboard
+                    coord_x = int((coord_x - 5) / 40)
+                    coord_y = int((coord_y - 5) / 40)
+                    win = ref.check5(board, [coord_y, coord_x], player_color)
+                    score, board, msg = ref.capture(board, [coord_y, coord_x], player_color)
+                    ai_turn = True
+                run = ref.display_score(score, player_color, win, msg)
+        update_stone_player(screen, player_color)
         pygame.display.update()
     return True
 
@@ -86,16 +114,9 @@ def load_p_vs_p(screen):
     Load the gamemode PvP.
     """
     run = True
-    board = list()
+    board = init_board()
     player_color = 'b'
     ref = Referee()
-    for cpt_y in range(0, 19):
-        to_append = list()
-        cpt_y = cpt_y
-        for cpt_x in range(0, 19):
-            to_append.append(None)
-            cpt_x = cpt_x
-        board.append(to_append)
     while run:
         display_board(screen, board)
         for event in pygame.event.get():
