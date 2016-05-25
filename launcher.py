@@ -60,6 +60,7 @@ class Launcher:
         """
         Exit.
         """
+        _ = self
         pygame.quit()
         return 0
 

@@ -85,23 +85,30 @@ def load_p_vs_ai(screen):
     while run:
         display_board(screen, board)
         if ai_turn:
-            ai.ai_play(board, ('b' if player_color == 'w' else 'w'))
+            if board == init_board():
+                pos = [9, 9]
+            else:
+                pos = ai.ai_play(board, ('b' if player_color == 'w' else 'w'))
+            rboard, score, msg = ref.set_stone(board, ('b' if player_color == 'w' else 'w'), pos)
+            if rboard is not None:
+                board = rboard
+                win = ref.check5(board, pos, player_color)
             ai_turn = False
+            run = ref.display_score(score, player_color, win, msg)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     run = False
-            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and not ai_turn:
                 coord_x, coord_y = pygame.mouse.get_pos()
-                rboard, msg = ref.set_stone(board, player_color, [coord_y, coord_x])
+                coord_x = int((coord_x - 5) / 40)
+                coord_y = int((coord_y - 5) / 40)
+                rboard, score, msg = ref.set_stone(board, player_color, [coord_y, coord_x])
                 if rboard is not None:
                     board = rboard
-                    coord_x = int((coord_x - 5) / 40)
-                    coord_y = int((coord_y - 5) / 40)
                     win = ref.check5(board, [coord_y, coord_x], player_color)
-                    score, board, msg = ref.capture(board, [coord_y, coord_x], player_color)
                     ai_turn = True
                 run = ref.display_score(score, player_color, win, msg)
         update_stone_player(screen, player_color)
@@ -127,13 +134,12 @@ def load_p_vs_p(screen):
                     run = False
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 coord_x, coord_y = pygame.mouse.get_pos()
-                rboard, msg = ref.set_stone(board, player_color, [coord_y, coord_x])
+                coord_x = int((coord_x - 5) / 40)
+                coord_y = int((coord_y - 5) / 40)
+                rboard, score, msg = ref.set_stone(board, player_color, [coord_y, coord_x])
                 if rboard is not None:
                     board = rboard
-                    coord_x = int((coord_x - 5) / 40)
-                    coord_y = int((coord_y - 5) / 40)
                     win = ref.check5(board, [coord_y, coord_x], player_color)
-                    score, board, msg = ref.capture(board, [coord_y, coord_x], player_color)
                     player_color = 'b' if player_color == 'w' else 'w'
                 run = ref.display_score(score, player_color, win, msg)
         update_stone_player(screen, player_color)

@@ -69,18 +69,19 @@ class Referee:
         Outputs:
         - board modified or None
         """
-        coord_in_board = [int((coord[0] - 5) / 40), int((coord[1] - 5) / 40)]
-        chck, msg = self.is_double3(board, coord_in_board, player_color)
-        if board[int((coord[0] - 5) / 40)][int((coord[1] - 5) / 40)] is None and not chck:
-            board[int((coord[0] - 5) / 40)][int((coord[1] - 5) / 40)] = player_color
-            return board, None
-        return None, msg
+        chck, msg = self.is_double3(board, coord, player_color)
+        if board[coord[0]][coord[1]] is None and not chck:
+            board[coord[0]][coord[1]] = player_color
+            score, board, msg = self.capture(board, coord, player_color)
+            return board, score, msg
+        return None, score, msg
 
     def capture(self, board, coord, player_color):
         """
         Check if the move make a capture.
         Return the new board and the score.
         """
+        _ = self
         score = 0
         enemy = 'b' if player_color == 'w' else 'w'
         case = [[-1, -1], [0, -1], [1, -1],
@@ -129,7 +130,7 @@ class Referee:
                         cpt_none += 1
                         if cpt_none + cpt >= 5:
                             break
-                    elif cpt_none + cpt >= 5 or board[calc_case_y][calc_case_x] != color:
+                    elif cpt_none + cpt >= 5:
                         break
         return False, None
 
@@ -159,14 +160,18 @@ class Referee:
                 if not ((calc_yx[1] > 18 or calc_yx[1] < 0)
                         or (calc_yx[0] > 18 or calc_yx[0] < 0)):
                     if cop_board[calc_yx[0]][calc_yx[1]] == color:
+                        if cpt == 0:
+                            cpt_none = 0
                         cpt += 1
                         coord_stone.append(list(calc_yx))
                         if cpt == 3:
                             return self.check_double3(cop_board, coord_stone, case, color)
                     elif cop_board[calc_yx[0]][calc_yx[1]] is None:
                         cpt_none += 1
-                    elif cpt_none + cpt == 5 or board[calc_yx[0]][calc_yx[1]] != color:
-                        return False, None
+                        if cpt_none + cpt >= 5:
+                            break
+                    elif cpt_none + cpt == 5:
+                        break
         return False, None
 
     def is_breakable(self, direction, coord, player, board):
