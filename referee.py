@@ -70,6 +70,7 @@ class Referee:
         - board modified or None
         """
         chck, msg = self.is_double3(board, coord, player_color)
+        score = 0
         if board[coord[0]][coord[1]] is None and not chck:
             board[coord[0]][coord[1]] = player_color
             score, board, msg = self.capture(board, coord, player_color)
