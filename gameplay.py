@@ -85,16 +85,13 @@ def load_p_vs_ai(screen):
     while run:
         display_board(screen, board)
         if ai_turn:
-            if board == init_board():
-                pos = [9, 9]
-            else:
-                pos = ai.ai_play(board, ('b' if player_color == 'w' else 'w'))
+            pos = ai.ai_play(board, ('b' if player_color == 'w' else 'w'))
             rboard, score, msg = ref.set_stone(board, ('b' if player_color == 'w' else 'w'), pos)
             if rboard is not None:
                 board = rboard
-                win = ref.check5(board, pos, player_color)
-            ai_turn = False
-            run = ref.display_score(score, player_color, win, msg)
+                win = ref.check5(board, pos, ('b' if player_color == 'w' else 'w'))
+                ai_turn = False
+            run = ref.display_score(score, ('b' if player_color == 'w' else 'w'), win, msg)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False

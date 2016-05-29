@@ -80,6 +80,8 @@ def ai_estimate(board):
     estimation = 0
     for coord_y in range(0, 19):
         for coord_x in range(0, 19):
+            if board[coord_y][coord_x] is None:
+                continue
             if board[coord_y][coord_x] == 'b':
                 estimation += ai_analyse(board, coord_x, coord_y)
             elif board[coord_y][coord_x] == 'w':
@@ -96,36 +98,32 @@ def ia_diagonal2_analyse(board, coord_x, coord_y, color):
     bonus = 0
     i = coord_x
     j = coord_y
-    while i >= 0 and j < 19:
-        if board[j][i] is None:
-            cpt += 1
-            break
-        elif board[j][i] == color:
-            cpt += 1
-            bonus += 1
-            break
-        else:
-            i = 0
+    while i > 0 and j < 18:
         i -= 1
         j += 1
-    cpt += 1
-    center = cpt
-    i = coord_x
-    j = coord_y
-    while i < 19 and j >= 0:
         if board[j][i] is None:
             cpt += 1
-            break
         elif board[j][i] == color:
             cpt += 1
             bonus += 1
-            break
         else:
-            i = 19
+            i = 0
+    center = cpt
+    cpt += 1
+    i = coord_x
+    j = coord_y
+    while i < 18 and j > 0:
         i += 1
         j -= 1
+        if board[j][i] is None:
+            cpt += 1
+        elif board[j][i] == color:
+            cpt += 1
+            bonus += 1
+        else:
+            i = 19
     if cpt >= 5:
-        return cpt * 1 + bonus * 1 + (1 - abs(center / (cpt - 1) - 0.5)) * cpt * 2
+        return cpt + bonus + (1 - abs(center / (cpt - 1) - 0.5)) * cpt * 2
     return 0
 
 
@@ -138,36 +136,32 @@ def ia_diagonal1_analyse(board, coord_x, coord_y, color):
     bonus = 0
     i = coord_x
     j = coord_y
-    while i >= 0 and j >= 0:
-        if board[j][i] is None:
-            cpt += 1
-            break
-        elif board[j][i] == color:
-            cpt += 1
-            bonus += 1
-            break
-        else:
-            i = 0
+    while i > 0 and j > 0:
         i -= 1
         j -= 1
-    cpt += 1
-    center = cpt
-    i = coord_x
-    j = coord_y
-    while i < 19 and j < 19:
         if board[j][i] is None:
             cpt += 1
-            break
         elif board[j][i] == color:
             cpt += 1
             bonus += 1
-            break
         else:
-            i = 19
+            i = 0
+    center = cpt
+    cpt += 1
+    i = coord_x
+    j = coord_y
+    while i < 18 and j < 18:
         i += 1
         j += 1
+        if board[j][i] is None:
+            cpt += 1
+        elif board[j][i] == color:
+            cpt += 1
+            bonus += 1
+        else:
+            i = 19
     if cpt >= 5:
-        return cpt * 1 + bonus * 1 + (1 - abs(center / (cpt - 1) - 0.5)) * cpt * 2
+        return cpt + bonus + (1 - abs(center / (cpt - 1) - 0.5)) * cpt * 2
     return 0
 
 
@@ -179,19 +173,18 @@ def ia_horizontal_analyse(board, coord_x, coord_y, color):
     cpt = 0
     bonus = 0
     chck = False
+    center = 0
     for i in range(0, 19):
         if i == coord_x:
-            cpt += 1
             center = cpt
+            cpt += 1
             chck = True
             continue
         if board[coord_y][i] is None:
             cpt += 1
-            break
         elif board[coord_y][i] == color:
             cpt += 1
             bonus += 1
-            break
         else:
             if chck:
                 i = 19
@@ -199,7 +192,7 @@ def ia_horizontal_analyse(board, coord_x, coord_y, color):
                 cpt = 0
                 bonus = 0
     if cpt >= 5:
-        return cpt * 1 + bonus * 1 + (1 - abs(center / (cpt - 1) - 0.5)) * cpt * 2
+        return cpt + bonus + (1 - abs(center / (cpt - 1) - 0.5)) * cpt * 2
     return 0
 
 
@@ -211,19 +204,18 @@ def ia_vertical_analyse(board, coord_x, coord_y, color):
     cpt = 0
     bonus = 0
     chck = False
+    center = 0
     for j in range(0, 19):
         if j == coord_y:
-            cpt += 1
             center = cpt
+            cpt += 1
             chck = True
             continue
         if board[j][coord_x] is None:
             cpt += 1
-            break
         elif board[j][coord_x] == color:
             cpt += 1
             bonus += 1
-            break
         else:
             if chck:
                 j = 19
@@ -231,7 +223,7 @@ def ia_vertical_analyse(board, coord_x, coord_y, color):
                 cpt = 0
                 bonus = 0
     if cpt >= 5:
-        return cpt * 1 + bonus * 1 + (1 - abs(center / (cpt - 1) - 0.5)) * cpt * 2
+        return cpt + bonus + (1 - abs(center / (cpt - 1) - 0.5)) * cpt * 2
     return 0
 
 
