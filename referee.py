@@ -90,7 +90,8 @@ class Referee:
                 [-1, 1], [0, 1], [1, 1]]
         msg = None
         for i in case:
-            if coord[0] + 3 * i[0] < 19 and coord[1] + 3 * i[1] < 19:
+            if ((coord[0] + 3 * i[0] < 19 and coord[1] + 3 * i[1] < 19) and
+                    (coord[0] + 3 * i[0] >= 0 and coord[1] + 3 * i[1] >= 0)):
                 if (board[coord[0] + 1 * i[0]][coord[1] + 1 * i[1]] == enemy and
                         board[coord[0] + 2 * i[0]][coord[1] + 2 * i[1]] == enemy and
                         board[coord[0] + 3 * i[0]][coord[1] + 3 * i[1]] == player_color):
