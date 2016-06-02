@@ -18,6 +18,29 @@ class Referee:
         self.score_black = 0
         self.case = [[0, 1], [1, 1], [1, 0], [1, -1]]
 
+    def copy_board(self, board):
+        """
+        Make a copy of the board.
+        """
+        _ = self
+        cop_board = list()
+        for j in board:
+            to_append = list()
+            for i in j:
+                to_append.append(i)
+            cop_board.append(to_append)
+        return cop_board
+
+    def remove_dir(self, direction):
+        """
+        Remove the direction we have already checked.
+        """
+        simplified_case = list()
+        for case in self.case:
+            if case is not direction:
+                simplified_case.append(case)
+        return simplified_case
+
     def display_win(self, win, msg=None):
         """
         Inputs:
@@ -105,35 +128,33 @@ class Referee:
         """
         Check in the precedent alignment of 3, if there any other 3 stones aligned.
         """
-        simplified_case = list()
-        for case in self.case:
-            if case is not direction:
-                simplified_case.append(case)
+        simplified_case = self.remove_dir(direction)
         for coord_yx in coord:
             for case in simplified_case:
-                dir_x = coord_yx[1] - 4 * case[1]
-                dir_y = coord_yx[0] - 4 * case[0]
+                dir_yx = [coord_yx[0] - 4 * case[0], coord_yx[1] - 4 * case[1]]
                 cpt = 0
                 cpt_none = 0
+                no_enemy = 0
                 for j in range(0, 9):
-                    calc_case_x = dir_x + j * case[1]
-                    calc_case_y = dir_y + j * case[0]
-                    if ((calc_case_x > 18 or calc_case_x < 0) or
-                            (calc_case_y > 18 or calc_case_y < 0)):
+                    new_pos = [dir_yx[0] + j * case[0], dir_yx[1] + j * case[1]]
+                    if ((new_pos[1] > 18 or new_pos[1] < 0) or
+                            (new_pos[0] > 18 or new_pos[0] < 0)):
                         continue
-                    elif board[calc_case_y][calc_case_x] == color:
-                        if cpt == 0:
-                            cpt_none = 0
+                    elif board[new_pos[0]][new_pos[1]] == color:
+                        no_enemy += 1
                         cpt += 1
-                        if cpt == 3:
-                            return (True, "The placement of this stone is not possible." +
-                                    " (Double three).")
-                    elif board[calc_case_y][calc_case_x] is None:
+                    elif board[new_pos[0]][new_pos[1]] is None:
                         cpt_none += 1
-                        if cpt_none + cpt >= 5:
-                            break
-                    elif cpt_none + cpt >= 5:
-                        break
+                        no_enemy += 1
+                    else:
+                        cpt = 0
+                        cpt_none = 0
+                        no_enemy = 0
+                    if cpt == 3 and (no_enemy == 4 or no_enemy == 5):
+                        return (True, "The placement of this stone is not possible." +
+                                " (Double three).")
+                    elif j > 5 and no_enemy < 4:
+                        return False, None
         return False, None
 
     def is_double3(self, board, coord, color):
@@ -141,39 +162,32 @@ class Referee:
         Check the double three rule.
         Return True if this rule is NOT respected.
         """
-        cop_board = list()
-        for j in board:
-            to_append = list()
-            for i in j:
-                to_append.append(i)
-            cop_board.append(to_append)
+        cop_board = self.copy_board(board)
         cop_board[coord[0]][coord[1]] = color
-        dir_yx = [0, 0]
-        calc_yx = [0, 0]
         for case in self.case:
-            dir_yx[1] = coord[1] - 4 * case[1]
-            dir_yx[0] = coord[0] - 4 * case[0]
+            dir_yx = [coord[0] - 4 * case[0], coord[1] - 4 * case[1]]
             cpt = 0
             cpt_none = 0
+            no_enemy = 0
             coord_stone = list()
             for i in range(0, 9):
-                calc_yx[1] = dir_yx[1] + i * case[1]
-                calc_yx[0] = dir_yx[0] + i * case[0]
-                if not ((calc_yx[1] > 18 or calc_yx[1] < 0)
-                        or (calc_yx[0] > 18 or calc_yx[0] < 0)):
-                    if cop_board[calc_yx[0]][calc_yx[1]] == color:
-                        if cpt == 0:
-                            cpt_none = 0
+                new_pos = [dir_yx[0] + i * case[0], dir_yx[1] + i * case[1]]
+                if not ((new_pos[1] > 18 or new_pos[1] < 0)
+                        or (new_pos[0] > 18 or new_pos[0] < 0)):
+                    if board[new_pos[0]][new_pos[1]] == color:
+                        no_enemy += 1
                         cpt += 1
-                        coord_stone.append(list(calc_yx))
-                        if cpt == 3:
-                            return self.check_double3(cop_board, coord_stone, case, color)
-                    elif cop_board[calc_yx[0]][calc_yx[1]] is None:
+                    elif board[new_pos[0]][new_pos[1]] is None:
                         cpt_none += 1
-                        if cpt_none + cpt >= 5:
-                            break
-                    elif cpt_none + cpt == 5:
-                        break
+                        no_enemy += 1
+                    else:
+                        cpt = 0
+                        cpt_none = 0
+                        no_enemy = 0
+                    if cpt == 3 and (no_enemy == 4 or no_enemy == 5):
+                        return self.check_double3(board, coord_stone, case, color)
+                    elif i > 5 and no_enemy < 4:
+                        return False, None
         return False, None
 
     def is_breakable(self, direction, coord, player, board):
@@ -189,21 +203,19 @@ class Referee:
         for i in range(0, 5):
             new_yx = [coord[0] + direction[0] * i, coord[1] + direction[1] * i]
             for case in self.case:
-                dir_x = new_yx[1] - 2 * case[1]
-                dir_y = new_yx[0] - 2 * case[0]
+                dir_yx = [new_yx[0] - 2 * case[0], new_yx[1] - 2 * case[1]]
                 cpt = 0
                 for j in range(0, 5):
-                    calc_case_x = dir_x + j * case[1]
-                    calc_case_y = dir_y + j * case[0]
-                    if not ((calc_case_x > 18 or calc_case_x < 0) or
-                            (calc_case_y > 18 or calc_case_y < 0)):
-                        if board[calc_case_y][calc_case_x] == enemy and (cpt == 0 or cpt == 2):
+                    new_pos = [dir_yx[0] + j * case[0], dir_yx[1] + j * case[1]]
+                    if not ((new_pos[1] > 18 or new_pos[1] < 0) or
+                            (new_pos[0] > 18 or new_pos[0] < 0)):
+                        if board[new_pos[0]][new_pos[1]] == enemy and (cpt == 0 or cpt == 2):
                             cpt += 3
-                        elif ((board[calc_case_y][calc_case_x] == enemy and cpt != 1) or
-                              (board[calc_case_y][calc_case_x] == player and cpt == 2) or
-                              (board[calc_case_y][calc_case_x] is None)):
+                        elif ((board[new_pos[0]][new_pos[1]] == enemy and cpt != 1) or
+                              (board[new_pos[0]][new_pos[1]] == player and cpt == 2) or
+                              (board[new_pos[0]][new_pos[1]] is None)):
                             cpt = 0
-                        elif board[calc_case_y][calc_case_x] == player and (cpt <= 1 or cpt >= 3):
+                        elif board[new_pos[0]][new_pos[1]] == player and (cpt <= 1 or cpt >= 3):
                             cpt += 1
                     if cpt == 5:
                         return True
@@ -215,12 +227,11 @@ class Referee:
         Return color of winner, else 0.
         """
         for case in self.case:
-            dir_x = coord[1] - 4 * case[1]
-            dir_y = coord[0] - 4 * case[0]
+            dir_yx = [coord[0] - 4 * case[0], coord[1] - 4 * case[1]]
             cpt = 0
             for i in range(0, 9):
-                calculated_x = dir_x + i * case[1]
-                calculated_y = dir_y + i * case[0]
+                calculated_x = dir_yx[1] + i * case[1]
+                calculated_y = dir_yx[0] + i * case[0]
                 if not ((calculated_x > 18 or calculated_x < 0)
                         or (calculated_y > 18 or calculated_y < 0)):
                     if board[calculated_y][calculated_x] == color:
