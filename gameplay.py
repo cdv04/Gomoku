@@ -7,6 +7,7 @@ This module contain the basic gameplay functions.
 import pygame
 
 import ai
+from options import Option
 from referee import Referee
 
 
@@ -25,22 +26,70 @@ def init_board():
     return board
 
 
-def r_false(coord_x=0, coord_y=0):
+def r_false(undef):
     """
     return False.
     Needed to attribute function for options.
     """
-    _ = coord_x, coord_y
+    _ = undef
     return False
 
 
-def r_true(coord_x=0, coord_y=0):
+def r_true(undef):
     """
     return False.
     Needed to attribute function for options.
     """
-    _ = coord_x, coord_y
+    _ = undef
     return True
+
+
+def r_text(txt):
+    """
+    return the color for player and False, to stop the menu.
+    Needed to attribute function for options.
+    """
+    if txt == 'Black':
+        return False, 'b'
+    elif txt == 'White':
+        return False, 'w'
+    else:
+        return False, None
+
+
+def set_color_player():
+    """
+    Choose the player color (mode Player vs AI).
+    """
+    screen = pygame.display.set_mode((770, 770))
+    options = [Option("Black", (750, 430), screen, r_text),
+               Option("White", (750, 480), screen, r_text),
+               Option("Return", (750, 750), screen, r_text)]
+    run = True
+    color = None
+    while run:
+        pygame.event.pump()
+        background = pygame.image.load('./img/MenuBG.jpg')
+        screen.blit(background, (0, 0))
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    run = False
+            for option in options:
+                if option.surf.collidepoint(pygame.mouse.get_pos()):
+                    option.hover = True
+                    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                        run, color = option.func(option.text)
+                else:
+                    option.hover = False
+                option.draw()
+        for option in options:
+            option.hover = bool(option.surf.collidepoint(pygame.mouse.get_pos()))
+            option.draw()
+        pygame.display.update()
+    return color
 
 
 def update_stone_player(screen, player_color):
@@ -79,7 +128,9 @@ def load_p_vs_ai(screen):
     """
     run = True
     board = init_board()
-    player_color = 'b'  # set_color_player
+    player_color = set_color_player()
+    if player_color is None:
+        return True
     ref = Referee()
     ai_turn = True if player_color == 'w' else False
     while run:

@@ -133,28 +133,22 @@ class Referee:
             for case in simplified_case:
                 dir_yx = [coord_yx[0] - 4 * case[0], coord_yx[1] - 4 * case[1]]
                 cpt = 0
-                cpt_none = 0
-                no_enemy = 0
                 for j in range(0, 9):
                     new_pos = [dir_yx[0] + j * case[0], dir_yx[1] + j * case[1]]
                     if ((new_pos[1] > 18 or new_pos[1] < 0) or
                             (new_pos[0] > 18 or new_pos[0] < 0)):
                         continue
-                    elif board[new_pos[0]][new_pos[1]] == color:
-                        no_enemy += 1
-                        cpt += 1
+                    if board[new_pos[0]][new_pos[1]] == color:
+                        cpt = 7 if (cpt == j and cpt > 1) else cpt + 6
                     elif board[new_pos[0]][new_pos[1]] is None:
-                        cpt_none += 1
-                        no_enemy += 1
+                        cpt = 0 if (cpt % -100 == 0 and cpt != 0) else cpt + 1
                     else:
-                        cpt = 0
-                        cpt_none = 0
-                        no_enemy = 0
-                    if cpt == 3 and (no_enemy == 4 or no_enemy == 5):
+                        cpt = -100
+                    if cpt >= 20:
                         return (True, "The placement of this stone is not possible." +
                                 " (Double three).")
-                    elif j > 5 and no_enemy < 4:
-                        return False, None
+                    elif cpt < 0 and j >= 5:
+                        break
         return False, None
 
     def is_double3(self, board, coord, color):
@@ -167,27 +161,22 @@ class Referee:
         for case in self.case:
             dir_yx = [coord[0] - 4 * case[0], coord[1] - 4 * case[1]]
             cpt = 0
-            cpt_none = 0
-            no_enemy = 0
             coord_stone = list()
             for i in range(0, 9):
                 new_pos = [dir_yx[0] + i * case[0], dir_yx[1] + i * case[1]]
                 if not ((new_pos[1] > 18 or new_pos[1] < 0)
                         or (new_pos[0] > 18 or new_pos[0] < 0)):
-                    if board[new_pos[0]][new_pos[1]] == color:
-                        no_enemy += 1
-                        cpt += 1
-                    elif board[new_pos[0]][new_pos[1]] is None:
-                        cpt_none += 1
-                        no_enemy += 1
+                    if cop_board[new_pos[0]][new_pos[1]] == color:
+                        cpt = 7 if (cpt == i and cpt > 1) else cpt + 6
+                        coord_stone.append(new_pos)
+                    elif cop_board[new_pos[0]][new_pos[1]] is None:
+                        cpt = 0 if (cpt % -100 == 0 and cpt != 0) else cpt + 1
                     else:
-                        cpt = 0
-                        cpt_none = 0
-                        no_enemy = 0
-                    if cpt == 3 and (no_enemy == 4 or no_enemy == 5):
-                        return self.check_double3(board, coord_stone, case, color)
-                    elif i > 5 and no_enemy < 4:
-                        return False, None
+                        cpt = -100
+                    if cpt == 20:
+                        return self.check_double3(cop_board, coord_stone, case, color)
+                    elif i >= 5 and cpt >= 27:
+                        break
         return False, None
 
     def is_breakable(self, direction, coord, player, board):
