@@ -37,7 +37,7 @@ class Referee:
         """
         simplified_case = list()
         for case in self.case:
-            if case is not direction:
+            if case[0] != direction[0] and case[1] != direction[1]:
                 simplified_case.append(case)
         return simplified_case
 
@@ -191,7 +191,7 @@ class Referee:
             return False
         for i in range(0, 5):
             new_yx = [coord[0] + direction[0] * i, coord[1] + direction[1] * i]
-            for case in self.case:
+            for case in self.remove_dir([-direction[0], -direction[1]]):
                 dir_yx = [new_yx[0] - 2 * case[0], new_yx[1] - 2 * case[1]]
                 cpt = 0
                 for j in range(0, 5):

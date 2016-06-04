@@ -136,7 +136,10 @@ def load_p_vs_ai(screen):
     while run:
         display_board(screen, board)
         if ai_turn:
-            pos = ai.ai_play(board, ('b' if player_color == 'w' else 'w'))
+            if board == init_board():
+                pos = [9, 9]
+            else:
+                pos = ai.ai_play(board, ('b' if player_color == 'w' else 'w'))
             rboard, score, msg = ref.set_stone(board, ('b' if player_color == 'w' else 'w'), pos)
             if rboard is not None:
                 board = rboard

@@ -36,19 +36,34 @@ def ai_check_win(board, coord, color, depth):
     return False
 
 
+def ai_check_pos(board, coord):
+    """
+    Check if the position is nearby another stone.
+    """
+    for coord_y in range(coord[0] - 1, coord[0] + 1):
+        for coord_x in range(coord[1] - 1, coord[1] + 1):
+            if coord_x < 0 or coord_y < 0 or coord_x > 18 or coord_y > 18:
+                continue
+            if board[coord_y][coord_x] is not None:
+                return True
+    return False
+
+
 def ai_alpha_beta(board, color, depth, alpha, beta):
     """
     Algo min-max with calibration alpha-beta
     """
-    if depth == 2:
+    if depth == 4:
         return ai_estimate(board) if color == 'b' else -ai_estimate(board)
     best = float('-Inf')
     estim = 0
     play = None
-    enemy = 'b' if color == 'w' else 'b'
+    enemy = 'b' if color == 'w' else 'w'
     for coord_y in range(0, 19):
         for coord_x in range(0, 19):
             if board[coord_y][coord_x] is not None:
+                continue
+            if not ai_check_pos(board, [coord_y, coord_x]):
                 continue
             if not play:
                 play = [coord_y, coord_x]
@@ -227,6 +242,31 @@ def ia_vertical_analyse(board, coord_x, coord_y, color):
     return 0
 
 
+def ai_check3_analyse(board, coord, color):
+    """
+    Check if 5 stones are aligned.
+    Return color of winner, else 0.
+    """
+    enemy = 'b' if color == 'w' else 'w'
+    estimation = 0
+    ref = Referee()
+    for case in ref.case:
+        dir_yx = [coord[0] - 3 * case[0], coord[1] - 3 * case[1]]
+        cpt = 0
+        for i in range(0, 7):
+            calculated_x = dir_yx[1] + i * case[1]
+            calculated_y = dir_yx[0] + i * case[0]
+            if not ((calculated_x > 18 or calculated_x < 0)
+                    or (calculated_y > 18 or calculated_y < 0)):
+                if board[calculated_y][calculated_x] == enemy:
+                    cpt += 1
+                    if cpt == 3:
+                        estimation += 5
+                else:
+                    cpt = 0
+    return estimation
+
+
 def ai_analyse(board, coord_x, coord_y):
     """
     Calcul the possibility
@@ -237,4 +277,5 @@ def ai_analyse(board, coord_x, coord_y):
     estimation += ia_horizontal_analyse(board, coord_x, coord_y, color)
     estimation += ia_diagonal1_analyse(board, coord_x, coord_y, color)
     estimation += ia_diagonal2_analyse(board, coord_x, coord_y, color)
+    estimation += ai_check3_analyse(board, [coord_y, coord_x], color)
     return estimation
