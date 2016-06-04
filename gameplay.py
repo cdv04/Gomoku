@@ -136,6 +136,7 @@ def load_p_vs_ai(screen):
     while run:
         display_board(screen, board)
         if ai_turn:
+            Referee.played += 2
             if board == init_board():
                 pos = [9, 9]
             else:

@@ -40,12 +40,12 @@ def ai_check_pos(board, coord):
     """
     Check if the position is nearby another stone.
     """
-    for coord_y in range(coord[0] - 1, coord[0] + 1):
-        for coord_x in range(coord[1] - 1, coord[1] + 1):
-            if coord_x < 0 or coord_y < 0 or coord_x > 18 or coord_y > 18:
-                continue
-            if board[coord_y][coord_x] is not None:
-                return True
+    for coord_y in range(coord[0] - 1, coord[0] + 2):
+        for coord_x in range(coord[1] - 1, coord[1] + 2):
+            if not ((coord_x > 18 or coord_x < 0)
+                    or (coord_y > 18 or coord_y < 0)):
+                if board[coord_y][coord_x] is not None:
+                    return True
     return False
 
 
@@ -53,7 +53,7 @@ def ai_alpha_beta(board, color, depth, alpha, beta):
     """
     Algo min-max with calibration alpha-beta
     """
-    if depth == 4:
+    if depth == 3:
         return ai_estimate(board) if color == 'b' else -ai_estimate(board)
     best = float('-Inf')
     estim = 0
@@ -104,7 +104,7 @@ def ai_estimate(board):
     return estimation
 
 
-def ia_diagonal2_analyse(board, coord_x, coord_y, color):
+def ai_diagonal2_analyse(board, coord_x, coord_y, color):
     """
     Analyse the board (diagonal ymax->ymin;xmin->xmax)
     Called by ai_analyse
@@ -142,7 +142,7 @@ def ia_diagonal2_analyse(board, coord_x, coord_y, color):
     return 0
 
 
-def ia_diagonal1_analyse(board, coord_x, coord_y, color):
+def ai_diagonal1_analyse(board, coord_x, coord_y, color):
     """
     Analyse the board (diagonal ymin->ymax;xmin->xmax)
     Called by ai_analyse
@@ -180,7 +180,7 @@ def ia_diagonal1_analyse(board, coord_x, coord_y, color):
     return 0
 
 
-def ia_horizontal_analyse(board, coord_x, coord_y, color):
+def ai_horizontal_analyse(board, coord_x, coord_y, color):
     """
     Analyse the board (horizontal)
     Called by ai_analyse
@@ -211,7 +211,7 @@ def ia_horizontal_analyse(board, coord_x, coord_y, color):
     return 0
 
 
-def ia_vertical_analyse(board, coord_x, coord_y, color):
+def ai_vertical_analyse(board, coord_x, coord_y, color):
     """
     Analyse the board (vertical)
     Called by ai_analyse
@@ -244,8 +244,7 @@ def ia_vertical_analyse(board, coord_x, coord_y, color):
 
 def ai_check3_analyse(board, coord, color):
     """
-    Check if 5 stones are aligned.
-    Return color of winner, else 0.
+    Check if 3 stones are aligned.
     """
     enemy = 'b' if color == 'w' else 'w'
     estimation = 0
@@ -261,9 +260,30 @@ def ai_check3_analyse(board, coord, color):
                 if board[calculated_y][calculated_x] == enemy:
                     cpt += 1
                     if cpt == 3:
-                        estimation += 5
+                        estimation += 15 * Referee.played
                 else:
                     cpt = 0
+    return estimation
+
+
+def ai_capture_analyse(board, coord, color):
+    """
+    Estimate the capture move
+    """
+    estimation = 0
+    enemy = 'b' if color == 'w' else 'w'
+    case = [[-1, -1], [0, -1], [1, -1],
+            [-1, 0], [0, 0], [1, 0],
+            [-1, 1], [0, 1], [1, 1]]
+    for i in case:
+        if ((coord[0] + 3 * i[0] < 19 and coord[1] + 3 * i[1] < 19) and
+                (coord[0] + 3 * i[0] >= 0 and coord[1] + 3 * i[1] >= 0)):
+            if (board[coord[0] + 1 * i[0]][coord[1] + 1 * i[1]] == enemy and
+                    board[coord[0] + 2 * i[0]][coord[1] + 2 * i[1]] == enemy and
+                    board[coord[0] + 3 * i[0]][coord[1] + 3 * i[1]] == color):
+                board[coord[0] + 1 * i[0]][coord[1] + 1 * i[1]] = None
+                board[coord[0] + 2 * i[0]][coord[1] + 2 * i[1]] = None
+                estimation += 10 * Referee.played
     return estimation
 
 
@@ -273,9 +293,19 @@ def ai_analyse(board, coord_x, coord_y):
     """
     color = board[coord_y][coord_x]
     estimation = 0
-    estimation += ia_vertical_analyse(board, coord_x, coord_y, color)
-    estimation += ia_horizontal_analyse(board, coord_x, coord_y, color)
-    estimation += ia_diagonal1_analyse(board, coord_x, coord_y, color)
-    estimation += ia_diagonal2_analyse(board, coord_x, coord_y, color)
+    estimation += ai_vertical_analyse(board, coord_x, coord_y, color)
+    estimation += ai_horizontal_analyse(board, coord_x, coord_y, color)
+    estimation += ai_diagonal1_analyse(board, coord_x, coord_y, color)
+    estimation += ai_diagonal2_analyse(board, coord_x, coord_y, color)
     estimation += ai_check3_analyse(board, [coord_y, coord_x], color)
+    """
+    To be tested and ajusted
+    ref = Referee()
+    estimation += ai_capture_analyse(board, [coord_y, coord_x], color)
+    chck, text = ref.is_double3(board, [coord_y, coord_x], color)
+    _ = text
+    print(chck, text)
+    if chck:
+        estimation -= 100 * Referee.played
+    """
     return estimation

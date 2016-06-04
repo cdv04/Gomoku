@@ -12,6 +12,7 @@ class Referee:
     The class Referee contain all functions necessary
     to arbitrate the game.
     """
+    played = 0
 
     def __init__(self):
         self.score_white = 0
