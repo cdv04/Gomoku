@@ -38,7 +38,7 @@ class Referee:
         """
         simplified_case = list()
         for case in self.case:
-            if case[0] != direction[0] and case[1] != direction[1]:
+            if not (case[0] == direction[0] and case[1] == direction[1]):
                 simplified_case.append(case)
         return simplified_case
 
