@@ -132,6 +132,7 @@ def load_p_vs_ai(screen):
     if player_color is None:
         return True
     ref = Referee()
+    Referee.played = 0
     ai_turn = True if player_color == 'w' else False
     while run:
         display_board(screen, board)
@@ -163,6 +164,7 @@ def load_p_vs_ai(screen):
                     win = ref.check5(board, [coord_y, coord_x], player_color)
                     ai_turn = True
                 run = ref.display_score(score, player_color, win, msg)
+        display_board(screen, board)
         update_stone_player(screen, player_color)
         pygame.display.update()
     return True
@@ -194,6 +196,7 @@ def load_p_vs_p(screen):
                     win = ref.check5(board, [coord_y, coord_x], player_color)
                     player_color = 'b' if player_color == 'w' else 'w'
                 run = ref.display_score(score, player_color, win, msg)
+        display_board(screen, board)
         update_stone_player(screen, player_color)
         pygame.display.update()
     return True
