@@ -259,7 +259,7 @@ def ai_check4_analyse(board, coord, color):
                 if board[calculated_y][calculated_x] == color:
                     cpt += 1
                     if cpt == 4:
-                        estimation += 100 * Referee.played
+                        estimation += 500 * Referee.played
                 else:
                     cpt = 0
     return estimation
@@ -283,7 +283,7 @@ def ai_check3_analyse(board, coord, color):
                 if board[calculated_y][calculated_x] == enemy:
                     cpt += 1
                     if cpt == 3:
-                        estimation += 90 * Referee.played
+                        estimation += 1000 * Referee.played
                 else:
                     cpt = 0
     return estimation
@@ -304,7 +304,7 @@ def ai_capture_analyse(board, coord, color):
             if (board[coord[0] + 1 * i[0]][coord[1] + 1 * i[1]] == enemy and
                     board[coord[0] + 2 * i[0]][coord[1] + 2 * i[1]] == enemy and
                     board[coord[0] + 3 * i[0]][coord[1] + 3 * i[1]] == color):
-                estimation += 80 * Referee.played
+                estimation += 800 * Referee.played
     return estimation
 
 
