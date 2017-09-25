@@ -19,7 +19,7 @@ In addition, there are two game modes:
 - Player VS Player: game mode allows a human to play against another human. You will need to provide a customized set of aid for each player offering a coup considered interesting.
 - Player VS CPU: The most interesting game mode, in which the human player plays against artificial intelligence.
 
-## Install script
+## Install the script
 
 Use:
 
